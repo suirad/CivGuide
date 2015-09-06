@@ -132,7 +132,7 @@ public class CivGuide extends JavaPlugin {
 		for (ItemStack item : items){
 			if (item.getType().equals(Material.WRITTEN_BOOK)){
 				if (((BookMeta)item.getItemMeta()).getAuthor().equals(bookauthor)){
-					items.remove(item);
+					item.setType(Material.AIR);
 				}
 			}
 		}
