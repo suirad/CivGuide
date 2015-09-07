@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -25,7 +26,7 @@ public class CivGuide extends JavaPlugin {
 	private static CivGuideCommandListener commandListener;
 	private HashMap<String, CivGuideBook> guideBooks;
 	private ArrayList<UUID> playersWithBooks;
-	private String bookauthor = ChatColor.DARK_PURPLE+"CivCraft";
+	public String bookauthor = ChatColor.DARK_PURPLE+"CivCraft";
 	
 
 	@Override
@@ -50,15 +51,40 @@ public class CivGuide extends JavaPlugin {
 		commandListener = new CivGuideCommandListener();
 		playersWithBooks = new ArrayList<UUID>();
 		guideBooks = new HashMap<String, CivGuideBook>();
-		loadBooks(guideBooks);
+		loadBooks();
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
+		
+		for (Player player : this.getServer().getOnlinePlayers()){
+		player.getInventory().setContents(removeBooks(player.getInventory().getContents()));
+		}
 	}
 	
-	private void loadBooks(HashMap<String,CivGuideBook> booklist) {
-		//TODO: Test code remove
-		booklist.put("main", new CivGuideBook());
-		booklist.put("alt", new CivGuideBook());
-		///
+	private void loadBooks() {
+		this.saveDefaultConfig();
+		FileConfiguration config = this.getConfig();
+		if (!config.contains("booklist")){return;}
+		
+		List<String> booklist = config.getStringList("booklist");
+		if (booklist == null){return;}
+		
+		String defaultbook = config.getString("defaultbook", "");
+		
+		String fullname;
+		List<String> pages;
+		CivGuideBook book;
+		
+		for (String bookname : booklist){
+			if (!config.contains("books."+bookname) || bookname.isEmpty()){continue;}
+			
+			fullname = config.getString("books."+bookname+".fullname", bookname);
+			pages = config.getStringList("books."+bookname+".pages");
+			book = new CivGuideBook(fullname); 
+			book.addPages(pages);
+			guideBooks.put(bookname.toLowerCase(), book);
+			if (bookname.equalsIgnoreCase(defaultbook)){
+				guideBooks.put("default", book);
+			}
+		}
 	}
 
 	public static CivGuide getInstance(){
@@ -69,14 +95,22 @@ public class CivGuide extends JavaPlugin {
 		return guideBooks;
 	}
 	
-	public boolean isGuideBook(String book){
-		return guideBooks.containsKey(book);
+	public boolean isGuideBook(String bookname){
+		if (guideBooks.containsKey(bookname)){return true;}
+		for (CivGuideBook book: guideBooks.values()){
+			if (book.getName().equalsIgnoreCase(bookname))
+				return true;
+		}
+		return false;
 	}
 	
 	public boolean sendGuideBook(Player player, String bookname){
 		if (!isGuideBook(bookname) || player == null){
 			return false;
 		}
+		
+		String booknamefixed = fixbookname(bookname);
+		this.getLogger().warning(booknamefixed);
 		
 		ItemStack inhand = player.getItemInHand();
 		if (!(inhand.getType().equals(Material.AIR))){
@@ -93,12 +127,23 @@ public class CivGuide extends JavaPlugin {
 			}
 		}
 		
-		ItemStack book = makeBook(bookname);
-		player.setItemInHand(book);
+		player.setItemInHand(guideBooks.get(booknamefixed).makeBookItem());
 		playersWithBooks.add(NameAPI.getUUID(player.getName()));
 		return true;
 	}
 	
+	private String fixbookname(String bookname) {
+		if (guideBooks.containsKey(bookname)){return bookname;}
+		String name = bookname;
+		for (String book: guideBooks.keySet()){
+			if (guideBooks.get(book).getName().equalsIgnoreCase(bookname)){
+				name = book;
+				break;
+			}
+		}
+		return name;
+	}
+
 	public boolean hasBook(Player player){
 		if (playersWithBooks.contains(player.getUniqueId())){
 			return true;
@@ -118,6 +163,7 @@ public class CivGuide extends JavaPlugin {
 		} else{
 			inhand = player.getInventory().getItem(slot);
 		}
+		if (inhand == null){return;}
 		if (!(inhand.getType().equals(Material.WRITTEN_BOOK))){
 			return;
 		}
@@ -128,7 +174,7 @@ public class CivGuide extends JavaPlugin {
 
 	}
 	
-	public void removeBook(List<ItemStack> items){
+	public List<ItemStack> removeBooks(List<ItemStack> items){
 		for (ItemStack item : items){
 			if (item.getType().equals(Material.WRITTEN_BOOK)){
 				if (((BookMeta)item.getItemMeta()).getAuthor().equals(bookauthor)){
@@ -136,18 +182,21 @@ public class CivGuide extends JavaPlugin {
 				}
 			}
 		}
+		return items;
+	}
+	
+	private ItemStack[] removeBooks(ItemStack[] items) {
+		for (ItemStack item : items){
+			if (item == null){continue;}
+			if (item.getType().equals(Material.WRITTEN_BOOK)){
+				if (((BookMeta)item.getItemMeta()).getAuthor().equals(bookauthor)){
+					item.setType(Material.AIR);
+				}
+			}
+		}
+		return items;
 	}
 
-	private ItemStack makeBook(String bookname) {
-		ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
-		BookMeta bookdat = (BookMeta)book.getItemMeta();
-		
-		bookdat.setDisplayName(ChatColor.AQUA+bookname);
-		bookdat.setAuthor(bookauthor);
-		bookdat.addPage("one","two","three");
-		
-		book.setItemMeta(bookdat);
-		return book;
-	}
+
 
 }

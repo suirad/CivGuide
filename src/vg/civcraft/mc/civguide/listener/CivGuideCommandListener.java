@@ -14,11 +14,23 @@ public class CivGuideCommandListener {
 	public void handleCommand(Player player, String[] args) {
 		switch (args.length){
 			case 0:
-				cg.sendGuideBook(player, "main");
+				cg.sendGuideBook(player, "default");
 				return;
 			case 1:
-				if (args[0].equalsIgnoreCase("alt")){
-					cg.sendGuideBook(player, "alt");
+				if (!cg.sendGuideBook(player, args[0].toLowerCase())){
+					player.sendMessage("Guide Book not found: "+args[0]);
+				}
+				return;
+			default:
+				String bookname = "";
+				for (String arg: args){
+					bookname+=arg+" ";
+				}
+				bookname = bookname.trim();
+				if (!bookname.isEmpty()){
+					if (!cg.sendGuideBook(player, bookname)){
+						player.sendMessage("Guide Book not found: "+bookname);
+					}
 				}
 				return;
 		}

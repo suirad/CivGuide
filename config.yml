@@ -1,1 +1,28 @@
-  
+# Reference names for each book
+booklist: 
+  - "one"
+  - "two"
+  - "three"
+
+# This book is spawned when the player types /guide or /gui; all other books are spawned with their respective names/fullnames
+defaultbook: "one"
+
+# A book can have 256 characters per page w/ 50 pages max.
+books:
+  one:
+    fullname: "Book One"
+    pages:
+      - "Welcome to Civcraft"
+      - "Second page"
+      - "Blah Blah you get it."
+  two:
+    pages:
+      - "Yo"
+      - "Aye"
+      - "Hello"
+  three:
+    fullname: "Green eggs & ham"
+    pages:
+      - "I do not like green eggs and ham..."
+      - "I do not like them.."
+      - "Sam-I-Am."

@@ -77,7 +77,7 @@ public class CivGuidePlayerListener implements Listener {
 			return;
 		}
 		cg.removeBook((Player)event.getEntity());
-		cg.removeBook(event.getDrops());
+		cg.removeBooks(event.getDrops());
 	}
 
 }
