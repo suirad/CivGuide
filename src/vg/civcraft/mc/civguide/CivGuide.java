@@ -110,7 +110,6 @@ public class CivGuide extends JavaPlugin {
 		}
 		
 		String booknamefixed = fixbookname(bookname);
-		this.getLogger().warning(booknamefixed);
 		
 		ItemStack inhand = player.getItemInHand();
 		if (!(inhand.getType().equals(Material.AIR))){
