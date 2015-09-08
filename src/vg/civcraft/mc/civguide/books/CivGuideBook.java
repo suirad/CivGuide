@@ -31,7 +31,7 @@ public class CivGuideBook {
 		} else if (page.isEmpty()){
 			return false;
 		} else{
-			pages.add(page);
+			pages.add(parsePage(page));
 			return true;
 		}
 	}
@@ -40,9 +40,10 @@ public class CivGuideBook {
 		if (pages == null){return;}
 		
 		for (String page: pages){
-			this.addPage(page);
+			this.addPage(parsePage(page));
 		}
 	}
+	
 	
 	public ArrayList<String> getPages(){
 		return pages;
@@ -68,4 +69,34 @@ public class CivGuideBook {
 		book.setItemMeta(bookdat);
 		return book;
 	}
+	
+	private String parsePage(String page){
+		String ret = page;
+		ret = ret.replaceAll("~n", "\n");
+		ret = ret.replaceAll("~q", "\"");
+		ret = ret.replaceAll("~s", ChatColor.STRIKETHROUGH.toString());
+		ret = ret.replaceAll("~b", ChatColor.BOLD.toString());
+		ret = ret.replaceAll("~i", ChatColor.ITALIC.toString());
+		ret = ret.replaceAll("~u", ChatColor.UNDERLINE.toString());
+		ret = ret.replaceAll("~r", ChatColor.RESET.toString());
+		ret = ret.replaceAll("~c:a", ChatColor.AQUA.toString());
+		ret = ret.replaceAll("~c:b", ChatColor.BLACK.toString());
+		ret = ret.replaceAll("~c:bl", ChatColor.BLUE.toString());
+		ret = ret.replaceAll("~c:m", ChatColor.MAGIC.toString());
+		ret = ret.replaceAll("~c:da", ChatColor.DARK_AQUA.toString());
+		ret = ret.replaceAll("~c:db", ChatColor.DARK_BLUE.toString());
+		ret = ret.replaceAll("~c:dg", ChatColor.DARK_GRAY.toString());
+		ret = ret.replaceAll("~c:dgr", ChatColor.DARK_GREEN.toString());
+		ret = ret.replaceAll("~c:dp", ChatColor.DARK_PURPLE.toString());
+		ret = ret.replaceAll("~c:dr", ChatColor.DARK_RED.toString());
+		ret = ret.replaceAll("~c:go", ChatColor.GOLD.toString());
+		ret = ret.replaceAll("~c:g", ChatColor.GRAY.toString());
+		ret = ret.replaceAll("~c:gr", ChatColor.GREEN.toString());
+		ret = ret.replaceAll("~c:lp", ChatColor.LIGHT_PURPLE.toString());
+		ret = ret.replaceAll("~c:r", ChatColor.RED.toString());
+		ret = ret.replaceAll("~c:w", ChatColor.WHITE.toString());
+		ret = ret.replaceAll("~c:y", ChatColor.YELLOW.toString());
+		return ret;
+	}
+	
 }
