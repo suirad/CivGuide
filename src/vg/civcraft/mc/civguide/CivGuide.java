@@ -18,7 +18,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import vg.civcraft.mc.civguide.books.CivGuideBook;
 import vg.civcraft.mc.civguide.listener.CivGuideCommandListener;
 import vg.civcraft.mc.civguide.listener.CivGuidePlayerListener;
-import vg.civcraft.mc.namelayer.NameAPI;
 
 public class CivGuide extends JavaPlugin {
 	private static CivGuide instance;
@@ -41,6 +40,11 @@ public class CivGuide extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		for (Player player : this.getServer().getOnlinePlayers())
+			player.getInventory().setContents(removeBooks(player.getInventory().getContents()));
+		
+		guideBooks.clear();
+		playersWithBooks.clear();
 		
 	}
 
@@ -54,13 +58,14 @@ public class CivGuide extends JavaPlugin {
 		loadBooks();
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
 		
-		for (Player player : this.getServer().getOnlinePlayers()){
-		player.getInventory().setContents(removeBooks(player.getInventory().getContents()));
-		}
+		for (Player player : this.getServer().getOnlinePlayers())
+			player.getInventory().setContents(removeBooks(player.getInventory().getContents()));
+		
 	}
 	
 	private void loadBooks() {
 		this.saveDefaultConfig();
+		this.reloadConfig();
 		FileConfiguration config = this.getConfig();
 		if (!config.contains("booklist")){return;}
 		
@@ -114,12 +119,12 @@ public class CivGuide extends JavaPlugin {
 		ItemStack inhand = player.getItemInHand();
 		if (!(inhand.getType().equals(Material.AIR))){
 			if (!(inhand.getType().equals(Material.WRITTEN_BOOK))){
-				player.sendMessage(ChatColor.DARK_RED+"You're hand needs to be empty before you can summon a guidebook.");
+				player.sendMessage(ChatColor.DARK_GREEN+"[CivGuide] "+ChatColor.DARK_RED+"You're hand needs to be empty before you can summon a guidebook.");
 				return false;
 			}
 			BookMeta handbook = (BookMeta)inhand.getItemMeta();
 			if (!(handbook.getAuthor().equals(bookauthor))){
-				player.sendMessage(ChatColor.DARK_RED+"You're hand needs to be empty before you can summon a guidebook.");
+				player.sendMessage(ChatColor.DARK_GREEN+"[CivGuide] "+ChatColor.DARK_RED+"You're hand needs to be empty before you can summon a guidebook.");
 				return false;
 			} else{
 				player.setItemInHand(new ItemStack(Material.AIR));
@@ -127,7 +132,7 @@ public class CivGuide extends JavaPlugin {
 		}
 		
 		player.setItemInHand(guideBooks.get(booknamefixed).makeBookItem());
-		playersWithBooks.add(NameAPI.getUUID(player.getName()));
+		playersWithBooks.add(player.getUniqueId());
 		return true;
 	}
 	

@@ -1,8 +1,7 @@
 name: CivGuide
 main: vg.civcraft.mc.civguide.CivGuide
-version: 1.0.0
+version: 1.0.1
 author: suirad
-softdepend: [NameLayer]
 commands:
     guide:
       aliases: [gui]

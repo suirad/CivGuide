@@ -1,5 +1,7 @@
 package vg.civcraft.mc.civguide.listener;
 
+import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.entity.Player;
 
 import vg.civcraft.mc.civguide.CivGuide;
@@ -17,8 +19,14 @@ public class CivGuideCommandListener {
 				cg.sendGuideBook(player, "default");
 				return;
 			case 1:
+				switch (args[0].toLowerCase()){
+					case "booklist":
+					case "list":
+						player.sendMessage("Booklist");
+						return;
+				}
 				if (!cg.sendGuideBook(player, args[0].toLowerCase())){
-					player.sendMessage("Guide Book not found: "+args[0]);
+					player.sendMessage(ChatColor.DARK_GREEN+"[CivGuide] "+ChatColor.WHITE+"GuideBook not found: "+args[0]);
 				}
 				return;
 			default:
@@ -29,7 +37,7 @@ public class CivGuideCommandListener {
 				bookname = bookname.trim();
 				if (!bookname.isEmpty()){
 					if (!cg.sendGuideBook(player, bookname)){
-						player.sendMessage("Guide Book not found: "+bookname);
+						player.sendMessage(ChatColor.DARK_GREEN+"[CivGuide] "+ChatColor.WHITE+"GuideBook not found: "+bookname);
 					}
 				}
 				return;
