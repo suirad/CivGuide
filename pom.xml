@@ -5,7 +5,7 @@
 	<groupId>vg.civcraft.mc</groupId>
 	<artifactId>CivGuide</artifactId>
 	<packaging>jar</packaging>
-	<version>1.4.2</version>
+	<version>1.1.1</version>
 	<name>CivGuide</name>
 	<url>https://github.com/Civcraft/CivGuide</url>
 
@@ -31,14 +31,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.spigotmc</groupId>
-			<artifactId>Spigot1.8.7</artifactId>
-			<version>1.8.7</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.github.Kraken3</groupId>
-			<artifactId>AFKPGC</artifactId>
-			<version>1.3.4</version>
+			<artifactId>spigot-api</artifactId>
+			<version>1.8.7-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
@@ -49,7 +43,7 @@
 		</repository>
 		<repository>
 			<id>Jenkins-repo</id>
-			<url>http://civcraft.co:8080/plugin/repository/everything/</url>
+			<url>http://build.civcraft.com/plugin/repository/everything/</url>
 		</repository>
 	</repositories>
 </project>

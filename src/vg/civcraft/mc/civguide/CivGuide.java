@@ -1,6 +1,5 @@
 package vg.civcraft.mc.civguide;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +15,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import vg.civcraft.mc.civguide.books.CivGuideBook;
+import vg.civcraft.mc.civguide.books.CivGuideReader;
 import vg.civcraft.mc.civguide.listener.CivGuideCommandListener;
 import vg.civcraft.mc.civguide.listener.CivGuidePlayerListener;
 
@@ -24,7 +24,7 @@ public class CivGuide extends JavaPlugin {
 	private static CivGuidePlayerListener playerListener;
 	private static CivGuideCommandListener commandListener;
 	private HashMap<String, CivGuideBook> guideBooks;
-	private ArrayList<UUID> playersWithBooks;
+	private HashMap<UUID, CivGuideReader> playersWithBooks;
 	public String bookauthor = ChatColor.DARK_PURPLE+"CivCraft";
 	
 
@@ -53,7 +53,7 @@ public class CivGuide extends JavaPlugin {
 		instance = this;
 		playerListener = new CivGuidePlayerListener();
 		commandListener = new CivGuideCommandListener();
-		playersWithBooks = new ArrayList<UUID>();
+		playersWithBooks = new HashMap<UUID, CivGuideReader>();
 		guideBooks = new HashMap<String, CivGuideBook>();
 		loadBooks();
 		this.getServer().getPluginManager().registerEvents(playerListener, this);
@@ -132,7 +132,7 @@ public class CivGuide extends JavaPlugin {
 		}
 		
 		player.setItemInHand(guideBooks.get(booknamefixed).makeBookItem());
-		playersWithBooks.add(player.getUniqueId());
+		playersWithBooks.put(player.getUniqueId(), new CivGuideReader());
 		return true;
 	}
 	
@@ -147,19 +147,92 @@ public class CivGuide extends JavaPlugin {
 		}
 		return name;
 	}
-
+	
 	public boolean hasBook(Player player){
-		if (playersWithBooks.contains(player.getUniqueId())){
+		if (player == null){
+			return false;
+		} else{
+			return hasBook(player.getUniqueId());
+		}
+	}
+
+	public boolean hasBook(UUID uuid){
+		if (uuid == null){return false;}
+		if (playersWithBooks.containsKey(uuid)){
 			return true;
 		}
 		return false;
 	}
 	
+	public boolean isReading(Player player){
+		if (player == null){
+			return false;
+		} else {
+			return isReading(player.getUniqueId());
+		}
+	}
+	
+	public boolean isReading(UUID uuid) {
+		if (!hasBook(uuid)){
+			return false;
+		}
+		return playersWithBooks.get(uuid).isReading();
+	}
+	
+	public long getReadTimeSecs(Player player){
+		if (player == null){
+			return 0;
+		} else{
+			return getReadTimeSecs(player.getUniqueId());
+		}
+	}
+	
+	public long getReadTimeSecs(UUID uuid){
+		long ret = 0;
+		if (isReading(uuid)){
+			ret = playersWithBooks.get(uuid).getReadTimeSecs();
+		}
+		return ret;
+	}
+	
+	public long getOwnTimeSecs(Player player){
+		if (player == null){
+			return 0;
+		} else{
+			return getOwnTimeSecs(player.getUniqueId());
+		}
+	}
+	
+	public long getOwnTimeSecs(UUID uuid){
+		long ret = 0;
+		if (hasBook(uuid)){
+			ret = playersWithBooks.get(uuid).getOwnTime();
+		}
+		return ret;
+	}
+
+	
+	public void setReading(Player player, boolean reading){
+		if (player == null)
+			return;
+		setReading(player.getUniqueId(), reading);
+	}
+
+	public void setReading(UUID uuid, boolean reading) {
+		if (!hasBook(uuid))
+			return;
+		playersWithBooks.get(uuid).setReading(reading);
+	}
+
 	public void removeBook(Player player){
 		removeBook(player, -1);
 	}
 	
 	public void removeBook(Player player, int slot){
+		if (player == null){
+			return;
+		} else if (!hasBook(player))
+			return;
 		playersWithBooks.remove(player.getUniqueId());
 		ItemStack inhand;
 		if (slot == -1){
@@ -189,7 +262,7 @@ public class CivGuide extends JavaPlugin {
 		return items;
 	}
 	
-	private ItemStack[] removeBooks(ItemStack[] items) {
+	public ItemStack[] removeBooks(ItemStack[] items) {
 		for (ItemStack item : items){
 			if (item == null){continue;}
 			if (item.getType().equals(Material.WRITTEN_BOOK)){
